@@ -19,7 +19,15 @@
 #	* Creating the loadLSST.xxx scripts
 #
 
+
 set -e
+set -o pipefail
+trap on_error ERR
+
+function on_error {
+	echo "SIGERR: Rats! $OOPS ($?)"
+}
+
 
 #
 # Note to developers: change these when the EUPS version we use changes
@@ -31,7 +39,8 @@ EUPS_GITREV=${EUPS_GITREV:-""}
 EUPS_GITREPO=${EUPS_GITREPO:-"https://github.com/RobertLuptonTheGood/eups.git"}
 EUPS_TARURL=${EUPS_TARURL:-"https://github.com/RobertLuptonTheGood/eups/archive/$EUPS_VERSION.tar.gz"}
 
-EUPS_PKGROOT=${EUPS_PKGROOT:-"http://sw.lsstcorp.org/eupspkg"}
+EUPS_SERVER="sw.lsstcorp.org"
+EUPS_PKGROOT=${EUPS_PKGROOT:-"http://$EUPS_SERVER/eupspkg"}
 
 LSST_HOME="$PWD"
 
@@ -82,6 +91,10 @@ echo
 echo "LSST Software Stack Builder"
 echo "======================================================================="
 echo
+
+OOPS="Unable to reach $EUPS_SERVER"
+ping -q -c 1 -t 1 $EUPS_SERVER &> /dev/null
+unset OOPS
 
 ##########	Warn if there's a different version on the server
 
@@ -405,16 +418,16 @@ cat <<-EOF
 	Bootstrap complete. To continue installing (and to use) the LSST stack
 	type one of:
 
-		source "$LSST_HOME/loadLSST.bash"  # for bash
-		source "$LSST_HOME/loadLSST.csh"   # for csh
-		source "$LSST_HOME/loadLSST.ksh"   # for ksh
-		source "$LSST_HOME/loadLSST.zsh"   # for zsh
+	    source "$LSST_HOME/loadLSST.bash"  # for bash
+	    source "$LSST_HOME/loadLSST.csh"   # for csh
+	    source "$LSST_HOME/loadLSST.ksh"   # for ksh
+	    source "$LSST_HOME/loadLSST.zsh"   # for zsh
 
 	Individual LSST packages may now be installed with the usual \`eups
 	distrib install' command.  For example, to install the science pipeline
 	elements of the LSST stack, use:
 
-		eups distrib install lsst_apps
+	    eups distrib install lsst_apps
 
 	Next, read the documentation at:
 
@@ -424,7 +437,7 @@ cat <<-EOF
 
 	    https://lists.lsst.org/mailman/listinfo/dm-users
 
-	                                       Thanks!
+	                                        Thanks!
 	                                                -- The LSST Software Teams
 	                                                       http://dm.lsst.org/
 
