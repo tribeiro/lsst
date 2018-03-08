@@ -1079,7 +1079,7 @@ n8l::main() {
 
 	# always use miniconda when in batch mode
 	if [[ $BATCH_FLAG == true ]]; then
-		WITH_MINICONDA=true
+		WITH_MINICONDA=false
 	else
 		n8l::python_check
 	fi
